@@ -1,0 +1,51 @@
+[ {
+  "id" : 1,
+  "name" : "Nguyên lý ngôn ngữ lập trình",
+  "currentSeats" : 15,
+  "maxSeats" : 30,
+  "schedule" : "Thứ: 4, 5, CN",
+  "periods" : "2,3,4",
+  "status" : "Chờ duyệt",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30"
+}, {
+  "id" : 2,
+  "name" : "Nguyên lý ngôn ngữ lập trình",
+  "currentSeats" : 25,
+  "maxSeats" : 40,
+  "schedule" : "Thứ: 2, 7",
+  "periods" : "2,3,4",
+  "status" : "Chiêu sinh",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30"
+}, {
+  "id" : 3,
+  "name" : "Xử lý ngôn ngữ tự nhiên",
+  "currentSeats" : 20,
+  "maxSeats" : 50,
+  "schedule" : "Thứ: 2, 6, CN",
+  "periods" : "6,7,8",
+  "status" : "Chiêu sinh",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30"
+}, {
+  "id" : 4,
+  "name" : "Nguyên lý ngôn ngữ lập trình\t",
+  "currentSeats" : 0,
+  "maxSeats" : 40,
+  "schedule" : "Thứ: 3, 5",
+  "periods" : "10, 11, 12",
+  "status" : "Chờ duyệt",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30"
+}, {
+  "id" : 5,
+  "name" : "Xử lý ngôn ngữ tự nhiên\t",
+  "currentSeats" : 0,
+  "maxSeats" : 40,
+  "schedule" : "Thứ: 3, 5",
+  "periods" : "10, 11, 12",
+  "status" : "Chờ duyệt",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30"
+} ]

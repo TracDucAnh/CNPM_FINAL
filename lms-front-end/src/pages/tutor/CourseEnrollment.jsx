@@ -1,10 +1,22 @@
-// src/pages/tutor/ChieuSinhPage.jsx
+// src/pages/tutor/CourseEnrollment.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const ChieuSinhPage = () => {
+const PRIMARY_COLOR = "#1F4E79";
 
-  const [courses, setCourses] = useState([]);          
+const thStyle = {
+  padding: "8px 10px",
+  borderBottom: "1px solid #ddd",
+  textAlign: "left",
+};
+
+const tdStyle = {
+  padding: "8px 10px",
+  borderBottom: "1px solid #eee",
+};
+
+export default function CourseEnrollment() {
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [filter, setFilter] = useState({
@@ -15,8 +27,8 @@ const ChieuSinhPage = () => {
 
   const [requestForm, setRequestForm] = useState({
     courseName: "",
-    schedule: "",
-    periods: "",
+    schedule: "Thứ: 3, 5",
+    periods: "10, 11, 12",
     fromDate: "2025-03-10",
     toDate: "2025-06-30",
     seats: 40,
@@ -24,22 +36,33 @@ const ChieuSinhPage = () => {
 
   const [submitting, setSubmitting] = useState(false);
 
-  // ================== API CALLS ==================
+  // modal: type = 'error' | 'confirm' | 'success'
+  const [modal, setModal] = useState({
+    open: false,
+    type: null,
+    message: "",
+  });
+
+  // ================== API ==================
 
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/tutor/courses", {
+      const res = await axios.get("http://localhost:8080/api/tutor/courses", {
         params: {
           fromDate: filter.fromDate,
           toDate: filter.toDate,
           keyword: filter.keyword,
         },
       });
-      setCourses(res.data); // backend trả về mảng các khóa học
+      setCourses(res.data || []);
     } catch (err) {
       console.error(err);
-      alert("Không tải được danh sách khóa học");
+      setModal({
+        open: true,
+        type: "error",
+        message: "Không tải được danh sách khóa học.",
+      });
     } finally {
       setLoading(false);
     }
@@ -48,51 +71,122 @@ const ChieuSinhPage = () => {
   useEffect(() => {
     fetchCourses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // gọi 1 lần khi load trang
+  }, []);
 
-  // Gửi yêu cầu chiêu sinh mới
-  const handleSubmitRequest = async (e) => {
+  // ================== HANDLERS ==================
+
+  // bước 1: khi bấm "Gửi yêu cầu" -> check tên khóa học + mở popup confirm
+  const handleSubmitRequest = (e) => {
     e.preventDefault();
+
+    const trimmedName = requestForm.courseName.trim().toLowerCase();
+
+    // Không nhập tên
+    if (!trimmedName) {
+      setModal({
+        open: true,
+        type: "error",
+        message: "Vui lòng nhập tên khóa học.",
+      });
+      return;
+    }
+
+    // Kiểm tra tên khóa học có tồn tại trong danh sách phụ trách không
+    const exists = courses.some(
+      (c) => c.name && c.name.trim().toLowerCase() === trimmedName
+    );
+
+    if (!exists) {
+      // ❌ modal: không tồn tại tên khóa học
+      setModal({
+        open: true,
+        type: "error",
+        message: "Không tồn tại tên khóa học.",
+      });
+      return;
+    }
+
+    // ⚠️ modal confirm
+    setModal({
+      open: true,
+      type: "confirm",
+      message: "Bạn chắc chắn muốn gửi yêu cầu chiêu sinh khóa học này?",
+    });
+  };
+
+  // bước 2: user bấm ĐỒNG Ý trên modal confirm
+  const doSubmitRequest = async () => {
     try {
       setSubmitting(true);
-      await axios.post("/api/tutor/enrollment-requests", requestForm);
+      setModal({ open: false, type: null, message: "" });
 
-      alert("Gửi yêu cầu chiêu sinh thành công!");
+      await axios.post(
+        "http://localhost:8080/api/tutor/enrollment-requests",
+        requestForm
+      );
 
-      // reset form (tùy bạn)
-      setRequestForm({
-        ...requestForm,
-        schedule: "",
-        periods: "",
-        seats: 40,
+      // ✅ modal success
+      setModal({
+        open: true,
+        type: "success",
+        message: "Gửi yêu cầu chiêu sinh thành công.",
       });
 
-      // reload danh sách khóa học nếu backend cập nhật luôn
+      // reset nhẹ
+      setRequestForm((prev) => ({
+        ...prev,
+        schedule: "Thứ: 3, 5",
+        periods: "10, 11, 12",
+        seats: 40,
+      }));
+
       fetchCourses();
     } catch (err) {
       console.error(err);
-      alert("Gửi yêu cầu thất bại!");
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Gửi yêu cầu thất bại!";
+      setModal({
+        open: true,
+        type: "error",
+        message: msg,
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
+  const closeModal = () =>
+    setModal({
+      open: false,
+      type: null,
+      message: "",
+    });
+
   // ================== RENDER ==================
 
   return (
-    <div className="chieu-sinh-page" style={{ background: "#f4f4f4", minHeight: "100vh" }}>
-      {/* Thanh header trên cùng */}
+    <div style={{ background: "#f4f4f4", minHeight: "100vh" }}>
+      {/* Header trên cùng giống Figma */}
       <header
         style={{
-          background: "#0a4a7a",
+          background: PRIMARY_COLOR,
           color: "#fff",
-          padding: "16px 32px",
+          padding: "12px 32px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <div style={{ fontSize: 20, fontWeight: 600 }}>CHIÊU SINH KHÓA HỌC</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <img
+            src="/images/logobachkhoa.png"
+            alt="Logo BK"
+            style={{ height: 40 }}
+          />
+          <h1 style={{ fontSize: 20, fontWeight: 600 }}>CHIÊU SINH KHÓA HỌC</h1>
+        </div>
         <button
           style={{
             background: "transparent",
@@ -101,19 +195,20 @@ const ChieuSinhPage = () => {
             padding: "6px 16px",
             color: "#fff",
             cursor: "pointer",
+            fontSize: 14,
           }}
         >
           ĐĂNG XUẤT ⏻
         </button>
       </header>
 
-      {/* Nội dung chính */}
       <main style={{ padding: 24 }}>
+        {/* Title bar */}
         <div
           style={{
             background: "#184f7d",
             color: "#fff",
-            padding: "12px 20px",
+            padding: "10px 20px",
             borderRadius: "8px 8px 0 0",
             fontWeight: 600,
           }}
@@ -126,39 +221,73 @@ const ChieuSinhPage = () => {
             background: "#fff",
             borderRadius: "0 0 8px 8px",
             padding: 20,
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.08)",
           }}
         >
-          {/* Bộ lọc thời gian + tên khóa */}
-          <div style={{ marginBottom: 16, display: "flex", gap: 16, alignItems: "flex-end" }}>
+          {/* Bộ lọc */}
+          <div
+            style={{
+              marginBottom: 16,
+              display: "flex",
+              gap: 16,
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+            }}
+          >
             <div>
-              <label>Thời gian chiêu sinh (từ):</label>
+              <label className="text-sm font-medium">
+                Thời gian chiêu sinh (Từ):
+              </label>
               <input
                 type="date"
                 value={filter.fromDate}
-                onChange={(e) => setFilter({ ...filter, fromDate: e.target.value })}
-                style={{ display: "block", padding: 6, minWidth: 150 }}
+                onChange={(e) =>
+                  setFilter({ ...filter, fromDate: e.target.value })
+                }
+                style={{
+                  display: "block",
+                  padding: 6,
+                  minWidth: 150,
+                  borderRadius: 4,
+                  border: "1px solid #ddd",
+                }}
               />
             </div>
 
             <div>
-              <label>Đến:</label>
+              <label className="text-sm font-medium">Đến:</label>
               <input
                 type="date"
                 value={filter.toDate}
-                onChange={(e) => setFilter({ ...filter, toDate: e.target.value })}
-                style={{ display: "block", padding: 6, minWidth: 150 }}
+                onChange={(e) =>
+                  setFilter({ ...filter, toDate: e.target.value })
+                }
+                style={{
+                  display: "block",
+                  padding: 6,
+                  minWidth: 150,
+                  borderRadius: 4,
+                  border: "1px solid #ddd",
+                }}
               />
             </div>
 
-            <div style={{ flex: 1 }}>
-              <label>Tên khóa học:</label>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <label className="text-sm font-medium">Tên khóa học:</label>
               <input
                 type="text"
                 placeholder="Tên khóa học"
                 value={filter.keyword}
-                onChange={(e) => setFilter({ ...filter, keyword: e.target.value })}
-                style={{ display: "block", padding: 6, width: "100%" }}
+                onChange={(e) =>
+                  setFilter({ ...filter, keyword: e.target.value })
+                }
+                style={{
+                  display: "block",
+                  padding: 6,
+                  width: "100%",
+                  borderRadius: 4,
+                  border: "1px solid #ddd",
+                }}
               />
             </div>
 
@@ -168,18 +297,19 @@ const ChieuSinhPage = () => {
                 padding: "8px 16px",
                 borderRadius: 4,
                 border: "none",
-                background: "#184f7d",
+                background: PRIMARY_COLOR,
                 color: "#fff",
                 cursor: "pointer",
                 height: 36,
+                minWidth: 80,
               }}
             >
               🔍
             </button>
           </div>
 
-          {/* Bảng khóa học phụ trách */}
-          <div style={{ overflowX: "auto" }}>
+          {/* Bảng khóa học */}
+          <div style={{ overflowX: "auto", maxHeight: 260 }}>
             <table
               style={{
                 width: "100%",
@@ -220,7 +350,9 @@ const ChieuSinhPage = () => {
                       <td style={tdStyle}>{c.schedule}</td>
                       <td style={tdStyle}>{c.periods}</td>
                       <td style={tdStyle}>{c.status}</td>
-                      <td style={tdStyle}>{c.timeline}</td>
+                      <td style={tdStyle}>
+                        {c.fromDate} – {c.toDate}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -228,17 +360,17 @@ const ChieuSinhPage = () => {
             </table>
           </div>
 
-          {/* Form yêu cầu chiêu sinh khóa học mới */}
+          {/* Form yêu cầu chiêu sinh mới */}
           <div
             style={{
-              border: "1px solid #184f7d",
+              border: `1px solid ${PRIMARY_COLOR}`,
               borderRadius: 8,
               padding: 16,
             }}
           >
             <div
               style={{
-                background: "#184f7d",
+                background: PRIMARY_COLOR,
                 color: "#fff",
                 padding: "6px 10px",
                 borderRadius: 4,
@@ -260,78 +392,132 @@ const ChieuSinhPage = () => {
                 }}
               >
                 <div>
-                  <label>Tên khóa học:</label>
+                  <label className="text-sm font-medium">Tên khóa học:</label>
                   <input
                     type="text"
                     required
                     value={requestForm.courseName}
                     onChange={(e) =>
-                      setRequestForm({ ...requestForm, courseName: e.target.value })
+                      setRequestForm({
+                        ...requestForm,
+                        courseName: e.target.value,
+                      })
                     }
-                    style={{ display: "block", padding: 6, width: "100%" }}
+                    style={{
+                      display: "block",
+                      padding: 6,
+                      width: "100%",
+                      borderRadius: 4,
+                      border: "1px solid #ddd",
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label>Lịch học:</label>
+                  <label className="text-sm font-medium">Lịch học:</label>
                   <input
                     type="text"
-                    placeholder="Thứ: 3, 5"
                     value={requestForm.schedule}
                     onChange={(e) =>
-                      setRequestForm({ ...requestForm, schedule: e.target.value })
+                      setRequestForm({
+                        ...requestForm,
+                        schedule: e.target.value,
+                      })
                     }
-                    style={{ display: "block", padding: 6, width: "100%" }}
+                    style={{
+                      display: "block",
+                      padding: 6,
+                      width: "100%",
+                      borderRadius: 4,
+                      border: "1px solid #ddd",
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label>Tiết:</label>
+                  <label className="text-sm font-medium">Tiết:</label>
                   <input
                     type="text"
-                    placeholder="10, 11, 12"
                     value={requestForm.periods}
                     onChange={(e) =>
-                      setRequestForm({ ...requestForm, periods: e.target.value })
+                      setRequestForm({
+                        ...requestForm,
+                        periods: e.target.value,
+                      })
                     }
-                    style={{ display: "block", padding: 6, width: "100%" }}
+                    style={{
+                      display: "block",
+                      padding: 6,
+                      width: "100%",
+                      borderRadius: 4,
+                      border: "1px solid #ddd",
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label>Thời gian chiêu sinh (từ):</label>
+                  <label className="text-sm font-medium">
+                    Thời gian chiêu sinh (từ):
+                  </label>
                   <input
                     type="date"
                     value={requestForm.fromDate}
                     onChange={(e) =>
-                      setRequestForm({ ...requestForm, fromDate: e.target.value })
+                      setRequestForm({
+                        ...requestForm,
+                        fromDate: e.target.value,
+                      })
                     }
-                    style={{ display: "block", padding: 6, width: "100%" }}
+                    style={{
+                      display: "block",
+                      padding: 6,
+                      width: "100%",
+                      borderRadius: 4,
+                      border: "1px solid #ddd",
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label>Đến:</label>
+                  <label className="text-sm font-medium">Đến:</label>
                   <input
                     type="date"
                     value={requestForm.toDate}
                     onChange={(e) =>
-                      setRequestForm({ ...requestForm, toDate: e.target.value })
+                      setRequestForm({
+                        ...requestForm,
+                        toDate: e.target.value,
+                      })
                     }
-                    style={{ display: "block", padding: 6, width: "100%" }}
+                    style={{
+                      display: "block",
+                      padding: 6,
+                      width: "100%",
+                      borderRadius: 4,
+                      border: "1px solid #ddd",
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label>Số chỗ:</label>
+                  <label className="text-sm font-medium">Số chỗ:</label>
                   <input
                     type="number"
                     min="1"
                     value={requestForm.seats}
                     onChange={(e) =>
-                      setRequestForm({ ...requestForm, seats: Number(e.target.value) })
+                      setRequestForm({
+                        ...requestForm,
+                        seats: Number(e.target.value),
+                      })
                     }
-                    style={{ display: "block", padding: 6, width: "100%" }}
+                    style={{
+                      display: "block",
+                      padding: 6,
+                      width: "100%",
+                      borderRadius: 4,
+                      border: "1px solid #ddd",
+                    }}
                   />
                 </div>
               </div>
@@ -343,7 +529,7 @@ const ChieuSinhPage = () => {
                   padding: "8px 24px",
                   borderRadius: 4,
                   border: "none",
-                  background: "#184f7d",
+                  background: PRIMARY_COLOR,
                   color: "#fff",
                   cursor: "pointer",
                   fontWeight: 600,
@@ -355,20 +541,108 @@ const ChieuSinhPage = () => {
           </div>
         </div>
       </main>
+
+      {/* ===== MODAL (3 trạng thái) ===== */}
+      {modal.open && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 50,
+          }}
+        >
+          <div
+            style={{
+              width: 360,
+              background: "#fff",
+              borderRadius: 8,
+              padding: 20,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              textAlign: "center",
+            }}
+          >
+            <h3
+              style={{
+                fontWeight: 600,
+                marginBottom: 12,
+                fontSize: 18,
+              }}
+            >
+              Thông báo
+            </h3>
+
+            {/* icon */}
+            <div style={{ fontSize: 40, marginBottom: 8 }}>
+              {modal.type === "error" && (
+                <span style={{ color: "#e53935" }}>✖</span>
+              )}
+              {modal.type === "confirm" && (
+                <span style={{ color: "#f9a825" }}>⚠</span>
+              )}
+              {modal.type === "success" && (
+                <span style={{ color: "#43a047" }}>✔</span>
+              )}
+            </div>
+
+            <p style={{ marginBottom: 20 }}>{modal.message}</p>
+
+            {/* nút */}
+            {modal.type === "confirm" ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 12,
+                }}
+              >
+                <button
+                  onClick={closeModal}
+                  style={{
+                    padding: "6px 18px",
+                    borderRadius: 4,
+                    border: "1px solid #ccc",
+                    background: "#fff",
+                    cursor: "pointer",
+                  }}
+                >
+                  Thoát
+                </button>
+                <button
+                  onClick={doSubmitRequest}
+                  style={{
+                    padding: "6px 18px",
+                    borderRadius: 4,
+                    border: "none",
+                    background: PRIMARY_COLOR,
+                    color: "#fff",
+                    cursor: "pointer",
+                  }}
+                >
+                  Đồng ý
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={closeModal}
+                style={{
+                  padding: "6px 24px",
+                  borderRadius: 4,
+                  border: "none",
+                  background: PRIMARY_COLOR,
+                  color: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                Thoát
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-// style đơn giản cho ô bảng
-const thStyle = {
-  padding: "8px 10px",
-  borderBottom: "1px solid #ddd",
-  textAlign: "left",
-};
-
-const tdStyle = {
-  padding: "8px 10px",
-  borderBottom: "1px solid #eee",
-};
-
-export default ChieuSinhPage;
+}

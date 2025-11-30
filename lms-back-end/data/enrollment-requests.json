@@ -1,0 +1,36 @@
+[ {
+  "courseName" : "Nguyên lý ngôn ngữ lập trình\t",
+  "schedule" : "Thứ: 3, 5",
+  "periods" : "10, 11, 12",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30",
+  "seats" : 40
+}, {
+  "courseName" : "Nguyên lý ngôn ngữ lập trình\t",
+  "schedule" : "Thứ: 3, 5",
+  "periods" : "10, 11, 12",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30",
+  "seats" : 40
+}, {
+  "courseName" : "Nguyên lý ngôn ngữ lập trình\t",
+  "schedule" : "Thứ: 3, 5",
+  "periods" : "10, 11, 12",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30",
+  "seats" : 40
+}, {
+  "courseName" : "Nguyên lý ngôn ngữ lập trình\t",
+  "schedule" : "Thứ: 3, 5",
+  "periods" : "10, 11, 12",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30",
+  "seats" : 40
+}, {
+  "courseName" : "Xử lý ngôn ngữ tự nhiên\t",
+  "schedule" : "Thứ: 3, 5",
+  "periods" : "10, 11, 12",
+  "fromDate" : "2025-03-10",
+  "toDate" : "2025-06-30",
+  "seats" : 40
+} ]
