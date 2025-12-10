@@ -1,127 +1,175 @@
+// src/pages/mentee/MenteePage.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Wrench } from "lucide-react";
+
+// Import Dashboard Component
+import { MenteeDashboard } from "./MenteeDashboard";
+
+// Import các trang chức năng thực tế
+import RegisterCoursesPage from "./RegisterCoursesPage";
+import SchedulePage from "./SchedulePage";
+import NotificationPage from "./NotificationPage";
+import FeedbackPage from "./FeedbackPage";
+
+// Component hiển thị cho các chức năng đang phát triển
+const ComingSoon = ({ title }) => (
+  <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
+    <div className="bg-gray-100 p-6 rounded-full mb-4">
+      <Wrench className="w-12 h-12 text-blue-800" />
+    </div>
+    <h3 className="text-xl font-bold text-gray-700 mb-2">Chức năng {title}</h3>
+    <p className="text-gray-500">Tính năng này đang được phát triển và sẽ sớm ra mắt.</p>
+    <button 
+      onClick={() => window.history.back()} // Hoặc set state về dashboard
+      className="mt-6 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-md transition"
+    >
+      Quay lại trang chủ
+    </button>
+  </div>
+);
+
+// Placeholder cho Tài liệu (nếu chưa có trang riêng)
+const MenteeDocuments = () => <ComingSoon title="Truy cập tài liệu" />;
+// Placeholder cho Đánh giá hệ thống
+const MenteeSystemEvaluation = () => <ComingSoon title="Đánh giá hệ thống" />;
+
+const PRIMARY_COLOR = "#1F4E79";
+
 export default function MenteePage() {
-  const mentees = [
-    {
-      name: "Nguyễn Văn A",
-      name: "Nguyễn Văn A",
-      role: "Mentee",
-      phone: "09013949401",
-      email: "a.nguyenvan@example.edu.vn",
-      createdAt: "23/10/2025",
-    },
-    {
-      name: "Phạm Văn B",
-      role: "Mentee",
-      phone: "0938475178",
-      email: "b.phamvan@example.edu.vn",
-      createdAt: "23/10/2025",
-    },
-    {
-      name: "Trương Tấn P",
-      role: "Mentee",
-      phone: "0384695871",
-      email: "p.truongtan@example.edu.vn",
-      createdAt: "23/10/2025",
-    },
-    {
-      name: "Võ Hải Q",
-      role: "Mentee",
-      phone: "0834616171",
-      email: "q.vohai@example.edu.vn",
-      createdAt: "23/10/2025",
-    },
-    // ... thêm dữ liệu nếu cần
-  ];
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const navigate = useNavigate();
+
+  // Mock user info
+  const mockUser = {
+    name: localStorage.getItem("name") || "Yến Nhi",
+    email: localStorage.getItem("username") || "mentee@example.com",
+  };
+
+  const handleNavigate = (page) => {
+    if (page === "logout") {
+      localStorage.clear();
+      navigate("/login-lms");
+      return;
+    }
+    setCurrentPage(page);
+  };
+
+  // Render nội dung theo menu -> Gọi các Component thực tế
+  const renderContent = () => {
+    switch (currentPage) {
+      case "dashboard":
+        return <MenteeDashboard user={mockUser} onNavigate={handleNavigate} />;
+      case "registration":
+        return <RegisterCoursesPage />; // Trang đăng ký thật
+      case "documents":
+        return <MenteeDocuments />;     // Placeholder
+      case "schedule":
+        return <SchedulePage />;        // Trang lịch học thật
+      case "course-eval":
+        return <FeedbackPage />;        // Trang đánh giá/feedback thật
+      case "notifications":
+        return <NotificationPage />;    // Trang thông báo thật
+      case "system-eval":
+        return <MenteeSystemEvaluation />; // Placeholder
+      default:
+        return <MenteeDashboard user={mockUser} onNavigate={handleNavigate} />;
+    }
+  };
+
+  // Tiêu đề trang thay đổi động
+  const getPageTitle = () => {
+    switch (currentPage) {
+      case "dashboard": return "TRANG CHỦ";
+      case "registration": return "ĐĂNG KÝ KHÓA HỌC";
+      case "documents": return "TÀI LIỆU HỌC TẬP";
+      case "schedule": return "LỊCH HẸN";
+      case "course-eval": return "ĐÁNH GIÁ KHÓA HỌC";
+      case "notifications": return "THÔNG BÁO";
+      case "system-eval": return "ĐÁNH GIÁ HỆ THỐNG";
+      default: return "TRANG CHỦ";
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb] px-10 py-8">
-      {/* Tiêu đề trang */}
-      <h1 className="text-2xl font-semibold text-[#0053a6] mb-6">
-        Quản lý mentee
-      </h1>
-
-      {/* Card danh sách mentee */}
-      <div className="bg-white rounded-2xl shadow-sm p-6">
-        {/* Header card */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            {/* Logo / icon đơn giản */}
-            <div className="w-10 h-10 rounded-full border border-green-500 flex items-center justify-center">
-              <span className="text-green-500 text-xl">👥</span>
+    <div className="h-screen bg-gray-50 flex flex-col font-sans overflow-hidden">
+      
+      {/* === HEADER (Full Width) === */}
+      <header 
+        className="w-full shrink-0 shadow-md z-50 relative"
+        style={{ height: "64px", backgroundColor: PRIMARY_COLOR }}
+      >
+        <div className="w-full h-full px-4 md:px-8 flex items-center justify-between">
+          
+          {/* Left: Logo & School Name */}
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm shrink-0">
+               <img src="/images/logobachkhoa.png" alt="Logo" className="w-3/4 h-3/4 object-contain" />
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-gray-800">
-                Danh sách mentee
-              </h2>
-              <p className="text-xs text-gray-500">
-                Quản lý thông tin mentee trong hệ thống
-              </p>
+            
+            <div className="hidden md:block text-white font-normal text-[13px] md:text-[14px] leading-tight uppercase">
+              TRƯỜNG ĐẠI HỌC BÁCH KHOA - <br className="hidden lg:block"/> ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH
+            </div>
+            <div className="md:hidden text-white font-bold text-sm uppercase">
+              HCMUT - LMS
             </div>
           </div>
 
-          {/* Thanh công cụ: search + filter + add */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Ô tìm kiếm */}
-            <div className="flex items-center gap-2 px-3 py-2 bg-[#f5f7fb] rounded-full min-w-[220px]">
-              <span>🔍</span>
-              <input
-                type="text"
-                placeholder="Tìm kiếm"
-                className="bg-transparent outline-none text-sm flex-1"
-              />
+          {/* Right: Logout Button */}
+          <div 
+            className="flex items-center gap-3 cursor-pointer opacity-90 hover:opacity-100 transition-opacity"
+            onClick={() => handleNavigate("logout")}
+          >
+            <span className="text-white text-[14px] font-medium uppercase hidden sm:block">ĐĂNG XUẤT</span>
+            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm">
+               <LogOut size={16} color={PRIMARY_COLOR} />
             </div>
+          </div>
+        </div>
+      </header>
 
-            {/* Nút lọc */}
-            <button className="flex items-center gap-1 px-3 py-2 text-sm border rounded-full border-gray-200 hover:bg-gray-50">
-              <span>⚙️</span>
-              <span>Lọc</span>
-            </button>
+      {/* === MAIN BODY === */}
+      <main className="flex-1 w-full p-4 md:p-6 overflow-hidden flex flex-col relative z-0">
+        
+        {/* Content Container (White Box) */}
+        <div 
+          className="w-full max-w-7xl mx-auto bg-white border-2 rounded-lg shadow-lg flex flex-col overflow-hidden h-full"
+          style={{ borderColor: PRIMARY_COLOR }}
+        >
+          
+          {/* Sub-Header (Page Title) */}
+          <div 
+            className="w-full flex items-center justify-center shrink-0"
+            style={{ height: "44px", backgroundColor: PRIMARY_COLOR }}
+          >
+             <span className="text-white font-bold text-[18px] md:text-[20px] uppercase tracking-wide">
+                {getPageTitle()}
+             </span>
+          </div>
 
-            {/* Nút thêm mentee */}
-            <button className="flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full bg-[#0053a6] text-white hover:bg-[#01428a]">
-              <span>＋</span>
-              <span>Thêm</span>
-            </button>
-
-            {/* Nút thùng rác (tuỳ chọn) */}
-            <button className="flex items-center justify-center w-9 h-9 rounded-full border border-gray-200 hover:bg-gray-50">
-              🗑️
-            </button>
+          {/* Scrollable Content Area */}
+          <div className="flex-1 w-full overflow-y-auto relative bg-white scroll-smooth">
+             
+             {/* Nút Back (Luôn hiển thị khi không ở Dashboard để dễ điều hướng) */}
+             {currentPage !== "dashboard" && (
+                <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-4 py-2 border-b border-gray-100">
+                  <button 
+                    onClick={() => setCurrentPage("dashboard")}
+                    className="flex items-center text-blue-800 font-semibold text-sm hover:underline"
+                  >
+                    ‹ Quay lại Trang chủ
+                  </button>
+                </div>
+             )}
+             
+             {/* Render Dynamic Content */}
+             <div className="h-full">
+                {renderContent()}
+             </div>
           </div>
         </div>
 
-        {/* Bảng mentee */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="py-3 px-4 font-semibold">Họ và tên</th>
-                <th className="py-3 px-4 font-semibold">Vai trò</th>
-                <th className="py-3 px-4 font-semibold">Số điện thoại</th>
-                <th className="py-3 px-4 font-semibold">Email</th>
-                <th className="py-3 px-4 font-semibold">Ngày tạo</th>
-                <th className="py-3 px-4 font-semibold text-center">Chi tiết</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mentees.map((mentee, index) => (
-                <tr
-                  key={index}
-                  className="border-b last:border-b-0 hover:bg-[#f9fafc]"
-                >
-                  <td className="py-3 px-4">{mentee.name}</td>
-                  <td className="py-3 px-4">{mentee.role}</td>
-                  <td className="py-3 px-4">{mentee.phone}</td>
-                  <td className="py-3 px-4">{mentee.email}</td>
-                  <td className="py-3 px-4">{mentee.createdAt}</td>
-                  <td className="py-3 px-4 text-center">
-                    <button className="text-[#0053a6] text-base">{">"}</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

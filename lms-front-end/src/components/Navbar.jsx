@@ -10,8 +10,7 @@ export default function Navbar() {
 
   const [openNotif, setOpenNotif] = useState(false);
   const [openUserMenu, setOpenUserMenu] = useState(false);
-  const [openLangMenu, setOpenLangMenu] = useState(false);
-  const [language, setLanguage] = useState("vi"); // "vi" | "en"
+  // Đã bỏ state liên quan đến language
 
   const notifications = [
     { id: 1, title: "Nhắc nộp bài", time: "1 phút trước" },
@@ -20,11 +19,6 @@ export default function Navbar() {
     { id: 4, title: "Tin nhắn mới", time: "Hôm qua" },
     { id: 5, title: "Thông báo hệ thống", time: "2 ngày trước" },
   ];
-
-  const handleSaveLanguage = () => {
-    console.log("Saved language:", language);
-    setOpenLangMenu(false);
-  };
 
   return (
     <header style={{ backgroundColor: PRIMARY_COLOR }} className="text-white shadow-md">
@@ -191,53 +185,6 @@ export default function Navbar() {
                 >
                   Hồ sơ
                 </button>
-
-                {/* Ngôn ngữ – submenu trong dropdown */}
-                <div className="border-t border-gray-100">
-                  <button
-                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 transition"
-                    onClick={() => setOpenLangMenu((v) => !v)}
-                  >
-                    <span>Ngôn ngữ</span>
-                  </button>
-
-                  {/* Dropdown Ngôn ngữ - Giữ nguyên */}
-                  {openLangMenu && (
-                    <div className="text-xs border-t border-gray-100">
-                      <div className="px-3 pt-2 pb-1 text-[11px] text-gray-500">
-                        Chọn ngôn ngữ
-                      </div>
-                      <button
-                        className={`w-full text-left px-3 py-2 hover:bg-gray-50 ${
-                          language === "vi"
-                            ? "text-blue-600 font-medium"
-                            : ""
-                        }`}
-                        onClick={() => setLanguage("vi")}
-                      >
-                        Tiếng Việt
-                      </button>
-                      <button
-                        className={`w-full text-left px-3 py-2 hover:bg-gray-50 ${
-                          language === "en"
-                            ? "text-blue-600 font-medium"
-                            : ""
-                        }`}
-                        onClick={() => setLanguage("en")}
-                      >
-                        English
-                      </button>
-                      <div className="px-3 py-2">
-                        <button
-                          className="w-full bg-blue-600 text-white rounded-md py-1 text-[11px] hover:bg-blue-700"
-                          onClick={handleSaveLanguage}
-                        >
-                          Lưu
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
 
                 {/* Đánh giá */}
                 <button

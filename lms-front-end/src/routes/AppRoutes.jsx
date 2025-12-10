@@ -1,4 +1,3 @@
-// src/routes/AppRoutes.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -9,12 +8,25 @@ import HomePage from "../pages/HomePage";
 import LoginLMS from "../pages/login/LoginLMS";
 import LoginAdmin from "../pages/login/LoginAdmin";
 
-// Admin & Tutor
+// Admin & Tutor (Giao diện Full Screen)
 import AdminPage from "../pages/admin/AdminPage";
 import TutorPage from "../pages/tutor/TutorPage";
 
-// Mentee – core
-import Dashboard from "../pages/mentee/Dashboard";
+// Mentee (Giao diện Full Screen Mới)
+// Lưu ý: Import MenteePage thay vì Dashboard
+import MenteePage from "../pages/mentee/MenteePage"; 
+
+// User Profile
+import UserPage from "../pages/user/UserPage";
+
+// Layout chung (Nếu dùng cho các trang khác)
+import MainLayout from "../layouts/MainLayout";
+
+// Protected route & chiêu sinh (Giữ nguyên nếu có)
+import ProtectedRoute from "../components/ProtectedRoute";
+import CourseEnrollment from "../pages/tutor/CourseEnrollment";
+
+// Các trang con của Mentee (Vẫn giữ lại để routing hoạt động nếu cần truy cập trực tiếp)
 import CoursePage from "../pages/mentee/CoursePage";
 import CourseDetailPage from "../pages/mentee/CourseDetailPage";
 import CourseSessionPage from "../pages/mentee/CourseSessionPage";
@@ -23,49 +35,28 @@ import SessionForumDetailPage from "../pages/mentee/SessionForumDetailPage";
 import MessagesPage from "../pages/mentee/MessagesPage";
 import NotificationPage from "../pages/mentee/NotificationPage";
 import FeedbackPage from "../pages/mentee/FeedbackPage";
-
-// Mentee – Quiz
 import QuizOverviewPage from "../pages/mentee/QuizOverviewPage";
 import QuizDoPage from "../pages/mentee/QuizDoPage";
 import QuizDonePage from "../pages/mentee/QuizDonePage";
-
-// Mentee – Đăng ký & lịch học
 import RegisterCoursesPage from "../pages/mentee/RegisterCoursesPage";
 import RegisteredCoursesPage from "../pages/mentee/RegisteredCoursesPage";
 import CancelRegistrationPage from "../pages/mentee/CancelRegistrationPage";
 import SchedulePage from "../pages/mentee/SchedulePage";
 
-// User
-import UserPage from "../pages/user/UserPage";
-
-// Layout chung sau khi login
-import MainLayout from "../layouts/MainLayout";
-
-// Protected route & chiêu sinh
-import ProtectedRoute from "../components/ProtectedRoute";
-import CourseEnrollment from "../pages/tutor/CourseEnrollment";
-
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        {/* Trang chủ (welcome + chọn đăng nhập) */}
+        {/* --- TRANG PUBLIC --- */}
         <Route path="/" element={<HomePage />} />
-
-        {/* Login riêng */}
         <Route path="/login-lms" element={<LoginLMS />} />
         <Route path="/login-admin" element={<LoginAdmin />} />
 
-        {/* Tutor dùng layout riêng, không đi qua MainLayout */}
-        <Route path="/admin" element={<AdminPage />} />
+        {/* --- CÁC TRANG FULL SCREEN (Tự quản lý Layout - KHÔNG DÙNG MainLayout) --- */}
+        
+        {/* Tutor Page */}
         <Route path="/tutor" element={<TutorPage />} />
-
-        {/* Các route sau khi đăng nhập sử dụng MainLayout */}
-        <Route element={<MainLayout />}>
-          {/* Admin */}
-
-          {/* Tutor – Chiêu sinh khóa học (bảo vệ bằng ProtectedRoute) */}
-          <Route
+        <Route
             path="/tutor/chieu-sinh"
             element={
               <ProtectedRoute role="TUTOR">
@@ -73,10 +64,19 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
+        
+        {/* Admin Page */}
+        <Route path="/admin" element={<AdminPage />} />
 
-          {/* Mentee – Dashboard */}
-          <Route path="/mentee" element={<Dashboard />} />
+        {/* Mentee Page (TRANG CHỦ MỚI CỦA MENTEE) */}
+        {/* Đưa ra ngoài MainLayout để hiển thị Full Screen header riêng */}
+        <Route path="/mentee" element={<MenteePage />} />
 
+        {/* --- CÁC TRANG CON CẦN LAYOUT CHUNG (Header/Sidebar cũ) --- */}
+        {/* Nếu bạn muốn các trang con (như chi tiết khóa học) vẫn dùng layout cũ thì để ở đây.
+            Nếu muốn chuyển hết sang style mới thì cần update từng trang. */}
+        <Route element={<MainLayout />}>
+          
           {/* Mentee – Khóa học của tôi */}
           <Route path="/mentee/courses" element={<CoursePage />} />
           <Route
@@ -110,7 +110,7 @@ const AppRoutes = () => {
             element={<QuizDonePage />}
           />
 
-          {/* Mentee – Đăng ký môn học & lịch học */}
+          {/* Mentee – Đăng ký & lịch học */}
           <Route path="/mentee/register" element={<RegisterCoursesPage />} />
           <Route
             path="/mentee/registered-courses"

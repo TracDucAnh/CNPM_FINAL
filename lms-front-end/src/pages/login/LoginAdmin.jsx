@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Định nghĩa màu chủ đạo
+// Màu chủ đạo
 const PRIMARY_COLOR = "#1F4E79";
 
 export default function LoginAdmin() {
@@ -24,20 +24,17 @@ export default function LoginAdmin() {
 
       const { token, role, name, username: u } = res.data;
 
-      // Chỉ cho phép tài khoản role = ADMIN
       if (role !== "ADMIN") {
         setError("Tài khoản này không có quyền quản trị viên.");
         return;
       }
 
-      // Lưu thông tin vào localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
       localStorage.setItem("name", name);
       localStorage.setItem("username", u);
 
-      // Điều hướng tới trang admin
-      navigate("/tutor");
+      navigate("/tutor"); // Hoặc /admin tùy cấu hình route
     } catch (err) {
       setError(
         err.response?.data?.error ||
@@ -47,90 +44,91 @@ export default function LoginAdmin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-xl space-y-8">
-        {/* LOGO BÁCH KHOA Ở GIỮA */}
-        <div className="flex justify-center mb-6">
+    <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center font-sans">
+      {/* Login Frame */}
+      <div className="relative w-full max-w-[685px] h-auto min-h-[492px] bg-white shadow-lg rounded-none md:rounded-lg overflow-hidden flex flex-col">
+        
+        {/* Header Bar */}
+        <div
+          style={{ backgroundColor: PRIMARY_COLOR }}
+          className="w-full h-[60px] flex items-center justify-between px-6 shrink-0"
+        >
+          <span className="text-white text-[14px] font-normal tracking-wider uppercase">
+            Quản trị viên
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          
           <img
-            className="h-auto w-[300px] max-h-[300px]"
             src="/images/logobachkhoa.png"
-            alt="Logo Bách Khoa"
+            alt="Logo"
+            className="h-16 w-auto mb-6 object-contain"
           />
-        </div>
 
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Đăng nhập quản trị viên
+          <h2 className="text-[#1E1E1E] text-lg font-semibold mb-4 uppercase">
+            Cổng đăng nhập Admin
           </h2>
-        </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-            <p className="text-red-700 text-sm">{error}</p>
+          {/* Form Box (Width 320px) */}
+          <div className="w-[320px] bg-white border border-[#D9D9D9] rounded-[8px] p-[24px] flex flex-col gap-[24px]">
+            
+            <form onSubmit={handleSubmit} className="flex flex-col gap-[16px]">
+              {error && (
+                <div className="text-xs text-red-600 bg-red-50 p-2 border border-red-200 rounded">
+                  {error}
+                </div>
+              )}
+
+              {/* Username */}
+              <div className="flex flex-col gap-[8px]">
+                <label className="text-[#1E1E1E] text-[16px] leading-[140%] font-normal">
+                  Tài khoản
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="admin@example.com"
+                  className="w-full h-[40px] px-[16px] py-[12px] bg-white border border-[#D9D9D9] rounded-[8px] text-[16px] text-[#1E1E1E] placeholder-[#B3B3B3] focus:outline-none focus:border-[#1F4E79] focus:ring-1 focus:ring-[#1F4E79]"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="flex flex-col gap-[8px]">
+                <label className="text-[#1E1E1E] text-[16px] leading-[140%] font-normal">
+                  Mật khẩu
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Nhập mật khẩu"
+                  className="w-full h-[40px] px-[16px] py-[12px] bg-white border border-[#D9D9D9] rounded-[8px] text-[16px] text-[#1E1E1E] placeholder-[#B3B3B3] focus:outline-none focus:border-[#1F4E79] focus:ring-1 focus:ring-[#1F4E79]"
+                />
+              </div>
+
+              {/* Button Group: Login + Back */}
+              <div className="flex flex-col gap-3 mt-2">
+                <button
+                  type="submit"
+                  style={{ backgroundColor: PRIMARY_COLOR }}
+                  className="w-full h-[40px] rounded-[8px] flex items-center justify-center text-white font-normal text-[16px] hover:opacity-90 transition"
+                >
+                  Đăng nhập
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/")}
+                  className="w-full h-[40px] rounded-[8px] flex items-center justify-center bg-white border border-gray-300 text-gray-700 font-normal text-[16px] hover:bg-gray-50 transition"
+                >
+                  Quay lại
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Tài khoản (email)
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="vd: admin@example.com"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Mật khẩu
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Nhập mật khẩu"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-2">
-            <button
-              type="submit"
-              style={{ backgroundColor: PRIMARY_COLOR }}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#346294] transition"
-            >
-              Đăng nhập
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
-            >
-              Quay lại
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-4 text-xs text-gray-500">
-          <div className="font-semibold mb-1">Tài khoản quản trị demo:</div>
-          <div>admin@example.com / Admin@123</div>
         </div>
       </div>
     </div>

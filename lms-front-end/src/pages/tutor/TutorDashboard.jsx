@@ -1,166 +1,111 @@
 // TutorDashboard.jsx
-import { BookOpen, FileText, Users, CheckCircle } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import React from "react";
+// Import icons đại diện (bạn có thể thay bằng file ảnh nếu muốn giống hệt Figma)
+import { 
+  Megaphone, // Quản lý thông báo
+  Calendar,  // Quản lý lịch hẹn
+  FileText,  // Truy cập tài liệu
+  UserPlus,  // Chiêu sinh
+  BarChart2, // Đánh giá hệ thống / Báo cáo
+  Users      // Sinh viên (nếu cần thêm)
+} from "lucide-react";
 
 export function TeacherDashboard({ user, onNavigate }) {
-  // Empty data arrays - to be populated later
-  const myCourses = [];
-  const myAssignments = [];
-  const totalStudents = 0;
-  const pendingGrading = 0;
-
-  // Empty chart data
-  const submissionData = [];
-  const gradeData = [];
+  
+  // Danh sách các nút chức năng theo Figma Groups
+  // Mỗi item map với một Group trong CSS (vị trí tương đối sẽ được grid xử lý hoặc absolute nếu muốn pixel perfect)
+  const dashboardItems = [
+    {
+      id: "enrollment", // Group 50
+      label: "Chiêu sinh khóa học",
+      icon: UserPlus,
+      bgIcon: "bg-blue-100", // Placeholder cho background image icon
+      color: "blue",
+      navTo: "enrollment"
+    },
+    {
+      id: "reports", // Group 42
+      label: "Đánh giá hệ thống",
+      icon: BarChart2,
+      bgIcon: "bg-green-100",
+      color: "green",
+      navTo: "reports"
+    },
+    {
+      id: "assignments", // Group 33 (Quản lý lịch hẹn -> tạm map sang Assignment/Schedule)
+      label: "Quản lý lịch hẹn",
+      icon: Calendar,
+      bgIcon: "bg-purple-100",
+      color: "purple",
+      navTo: "assignments" // Hoặc tạo trang Schedule riêng
+    },
+    {
+      id: "notifications", // Group 34
+      label: "Quản lý thông báo",
+      icon: Megaphone,
+      bgIcon: "bg-yellow-100",
+      color: "yellow",
+      navTo: "dashboard" // Chưa có trang thông báo, giữ ở dashboard
+    },
+    {
+      id: "documents", // Group 36
+      label: "Truy cập tài liệu",
+      icon: FileText,
+      bgIcon: "bg-red-100",
+      color: "red",
+      navTo: "documents"
+    },
+    {
+      id: "courses", // Thêm để đủ chức năng (Figma duplicate Group 37/42)
+      label: "Quản lý lớp học",
+      icon: Users,
+      bgIcon: "bg-indigo-100",
+      color: "indigo",
+      navTo: "courses"
+    }
+  ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Tổng quan giảng dạy</h1>
-        <p className="text-gray-600 mt-1">Xin chào, {user.name}</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            title: "Lớp học",
-            value: myCourses.length,
-            icon: BookOpen,
-            desc: "Đang giảng dạy",
-          },
-          {
-            title: "Sinh viên",
-            value: totalStudents,
-            icon: Users,
-            desc: "Tổng số sinh viên",
-          },
-          {
-            title: "Bài tập",
-            value: myAssignments.length,
-            icon: FileText,
-            desc: "Đã tạo",
-          },
-          {
-            title: "Chờ chấm",
-            value: pendingGrading,
-            icon: CheckCircle,
-            desc: "Bài nộp",
-          },
-        ].map((stat, index) => (
-          <div
+    <div className="w-full h-full p-6 relative">
+      
+      {/* Grid Layout giả lập vị trí các Group */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 max-w-[600px] mx-auto mt-4">
+        
+        {dashboardItems.map((item, index) => (
+          <div 
             key={index}
-            className="border border-gray-200 rounded-lg p-4 bg-white"
+            className="relative h-[68px] cursor-pointer group transition-transform hover:scale-105"
+            onClick={() => onNavigate(item.navTo)}
           >
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">{stat.title}</div>
-              <stat.icon className="w-4 h-4 text-gray-400" />
+            {/* Rectangle 12/10/13/14 (Dark Blue Box - Left) */}
+            <div 
+              className="absolute left-0 top-0 bottom-0 w-[140px] bg-[#1F4E79] border-2 border-[#1F4E79] rounded-l-md z-0"
+            />
+
+            {/* Button Body (Light Blue - Right) */}
+            <div 
+              className="absolute left-[60px] top-0 bottom-0 right-0 bg-[#0091FF] border border-[#2C2C2C] rounded-lg z-10 flex items-center justify-center pl-8 pr-2"
+            >
+              <span className="text-[#F5F5F5] font-normal text-[16px] leading-[100%] text-center">
+                {item.label}
+              </span>
             </div>
-            <div className="text-blue-600 text-2xl font-bold mt-2">
-              {stat.value}
+
+            {/* Avatar / Icon Circle */}
+            <div 
+              className="absolute left-[20px] top-[10px] w-[48px] h-[48px] bg-white rounded-full z-20 flex items-center justify-center shadow-md"
+            >
+              {/* Icon shape inside */}
+              <item.icon className="w-6 h-6 text-[#1F4E79]" />
             </div>
-            <div className="text-xs text-gray-500 mt-1">{stat.desc}</div>
           </div>
         ))}
+
       </div>
 
-      {/* Charts */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="border border-gray-200 rounded-lg p-4 bg-white">
-          <h3 className="font-semibold mb-4">Tình trạng nộp bài</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={submissionData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="Đã nộp" fill="#2F80ED" />
-              <Bar dataKey="Chưa nộp" fill="#E0E0E0" />
-            </BarChart>
-          </ResponsiveContainer>
-          {submissionData.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              Chưa có dữ liệu
-            </div>
-          )}
-        </div>
-
-        <div className="border border-gray-200 rounded-lg p-4 bg-white">
-          <h3 className="font-semibold mb-4">Phân bố điểm</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={gradeData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={(entry) => `${entry.name}: ${entry.value}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {gradeData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          {gradeData.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              Chưa có dữ liệu
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Recent Courses */}
-      <div className="border border-gray-200 rounded-lg bg-white">
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="font-semibold">Lớp học của tôi</h3>
-        </div>
-        <div className="p-4">
-          <div className="space-y-3">
-            {myCourses.map((course) => (
-              <div
-                key={course.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                onClick={() =>
-                  onNavigate("course-detail", { courseId: course.id })
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div>{course.name}</div>
-                    <div className="text-sm text-gray-600">
-                      {course.code} • {course.studentCount} sinh viên
-                    </div>
-                  </div>
-                </div>
-                <div className="text-sm text-gray-600">{course.semester}</div>
-              </div>
-            ))}
-          </div>
-          {myCourses.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              Chưa có lớp học nào
-            </div>
-          )}
-        </div>
+      {/* Trang trí thêm nếu cần */}
+      <div className="absolute bottom-4 right-4 text-xs text-gray-400">
+        GV: {user.name}
       </div>
     </div>
   );
